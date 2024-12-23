@@ -1,0 +1,18 @@
+Task-- Making a RESTful API - JSON
+
+GET /users - HTML Document Render
+GET /api/users - List all users JSON
+
+
+//Dynamic Path Parameter
+GET /api/users/:id - Get the user with ID
+id--> variable
+GET /api/users/1 - Get the user with ID 1
+GET /api/users/2 - Get the user with ID 2
+
+
+POST /api/users - Create new user
+
+PATCH /api/user/id - Edit the user with id-1
+
+DELETE /api/users/1 - Delete the user with id-1
