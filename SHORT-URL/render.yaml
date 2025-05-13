@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: short-url
+    runtime: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb://127.0.0.1:27017/short-url
+      - key: PORT
+        value: 8001
+      - key: SESSION_SECRET
+        value: Aman@123&%
