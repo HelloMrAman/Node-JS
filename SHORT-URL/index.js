@@ -21,7 +21,6 @@ connectToMongoDB('mongodb://127.0.0.1:27017/short-url', {
 
 
 
-
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -63,6 +62,17 @@ app.get('/url/:shortId', async (req, res) => {
       res.status(500).json({ message: "Server error, please try again later." });
     }
 });
-  
 
-app.listen(PORT, () => console.log(`Server Started at PORT: ${PORT}`))
+app.get('/', async (req, res) => {
+  const urls = await URL.find({}); 
+    res.render('home', { 
+        urls: urls,
+        id: req.query.id // Pass the ID from query parameters to template
+    });
+});
+  
+app.listen(PORT, () => {
+  console.log(
+      `Server is running on:-> http://localhost:${PORT}`
+  );
+});

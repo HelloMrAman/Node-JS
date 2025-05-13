@@ -7,7 +7,8 @@ function setUser(user) {
             _id: user._id,
             email: user.email, 
         }, 
-        secret
+        secret,
+        {expiresIn: '1h'}
     );
 }
 
@@ -15,8 +16,10 @@ function getUser(token) {
     if(!token) return null;
     try {
         return jwt.verify(token, secret);
-    } catch {
-        return null;
+    } catch(err) {
+        if (err.name === 'TokenExpiredError') {
+            console.log('Token expired');
+        }
     }
 }
 

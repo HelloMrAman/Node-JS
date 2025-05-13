@@ -8,6 +8,7 @@ router.get("/", async (req, res) => {
   const allUrls = await URL.find({});
   return res.render("home", {
     urls: allUrls,
+    id: req.query.id // pass query parameter to template
   }); 
 });
 

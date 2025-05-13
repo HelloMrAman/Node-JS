@@ -1,51 +1,511 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL Shortener</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      /* Existing styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+        background-color: #f5f7fa;
+        color: #333;
+        padding: 2rem 1rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+
+      .title {
+        color: #007bff;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+
+      .card {
+        margin: 0 15vw;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 0.875rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #0069d9;
+        transform: translateY(-1px);
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      #gen-url {
+        background-color: lightyellow;
+        color: black;
+      }
+
+      .url-table {
+          width: 100%;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          margin-top: 2rem;
+      }
+
+      .url-table thead {
+          background: #007bff;
+          color: white;
+      }
+
+      .url-table th {
+          padding: 1rem;
+          text-align: left;
+          font-weight: 600;
+      }
+
+      .url-table td {
+          padding: 1rem;
+          border-bottom: 1px solid #e9ecef;
+      }
+
+      .url-table tbody tr:last-child td {
+          border-bottom: none;
+      }
+
+      .url-table tbody tr:hover {
+          background-color: #f8f9fa;
+      }
+
+      .url-table th:nth-child(5),
+      .url-table td:nth-child(5) {
+          display: flex;
+          justify-content: center;
+      }
+
+      /* New Management Section Styles */
+      .management-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .management-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .management-header h2 {
+        color: #dc3545;
+        font-size: 1.75rem;
+        margin: 0;
+      }
+
+      .management-header svg {
+        width: 32px;
+        height: 32px;
+        color: #dc3545;
+      }
+
+      .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .action-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .action-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .action-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #212529;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .danger-action {
+        background: #fff5f5;
+        border-color: #ffe3e3;
+      }
+
+      .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .confirmation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        text-align: center;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #b02a37;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+      }
+
+      .delete-btn {
+            color: #dc3545;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            background: none;
+            border: none;
+            padding: 0.5rem;
         }
+
+        .delete-btn:hover {
+            color: #b02a37;
+        }
+
+      @media (max-width: 768px) {
+        .card,
+        .management-section {
+          margin: 0 1rem 2rem;
+        }
+
+        .action-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-</head>
-<body>
-    <h1>URL Shortener</h1>
-    <% if (locals.id) { %>
-     <p>URL Generated: http://localhost:8001/url/<%= id %></p>
-    <% } %>
-    <div>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1 class="title">URL Shortener</h1>
+      </header>
+
+      <% if (locals.id) { %>
+      <div class="success-message">
+        URL Generated: <span id="gen-url">http://localhost:8001/url/<%= id %></span>
+      </div>
+      <% } %>
+
+      <div class="card">
         <form method="post" action="/url">
-            <label>Enter Your Original URL</label>
-            <input 
-                type="text" 
-                placeholder="https://example.com" name="url"
+          <div class="form-group">
+            <label for="url">Original URL</label>
+            <input
+              type="text"
+              id="url"
+              class="input-field"
+              placeholder="https://example.com"
+              name="url"
+              required
             />
-            <button type="submit">Generate</button>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-link"></i> Generate Short URL
+          </button>
         </form>
-    </div>
-    <div>
-        <% if (locals.urls) { %>
-         <table>
-            <thead>
-                <th>S. No.</th>
-                <th>ShortID</th>
-                <th>RedirectURL</th>
-                <th>Clicks</th>
-            </thead>
-            <tbody>
-                <% urls.forEach((url, index) => { %>
-                    <tr>
-                        <td><%- index + 1 %></td>
-                    <td><%- url.shortId %></td>
-                    <td><%- url.redirectURL %></td>
-                    <td><%- url.visitHistory.length %></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-         </table>
-        <% } %>
-    </div>
-</body>
+      </div>
+
+      <!-- Management Section -->
+      <section class="management-section">
+        <div class="management-header">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <h2>URL Management</h2>
+        </div>
+
+        <div class="action-grid">
+          <!-- Search & Delete Card -->
+          <div class="action-card">
+            <div class="action-title">
+              <i class="fas fa-search"></i>
+              Search & Delete
+            </div>
+            <form class="search-form" action="/url/delete/search" method="POST">
+              <input
+                type="text"
+                name="search"
+                class="input-field"
+                placeholder="Enter Short ID or URL"
+                required
+              />
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+
+          <!-- Bulk Actions Card -->
+          <div class="action-card danger-action">
+            <div class="action-title">
+              <i class="fas fa-layer-group"></i>
+              Bulk Actions
+            </div>
+            <div class="bulk-actions">
+              <div>
+                <form action="/url/delete/start" method="POST">
+                  <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-angle-double-left"></i> Delete First
+                  </button>
+                </form>
+                <form
+                  action="/url/delete/end"
+                  method="POST"
+                  style="margin-top: 0.75rem"
+                >
+                  <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-angle-double-right"></i> Delete Last
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Danger Zone Card -->
+          <div class="action-card danger-action">
+            <div class="action-title">
+              <i class="fas fa-radiation"></i>
+              Danger Zone
+            </div>
+            <p style="color: #6c757d; margin-bottom: 1rem; font-size: 0.9rem">
+              Permanent and irreversible actions
+            </p>
+            <button
+              class="btn btn-danger"
+              onclick="showDeleteAllModal()"
+              type="button"
+              style="width: 100%"
+            >
+              <i class="fas fa-fire"></i> Delete All URLs
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Confirmation Modal -->
+      <div class="confirmation-modal" id="deleteAllModal">
+        <div class="modal-content">
+          <div style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3>Confirm Delete All URLs</h3>
+          <p style="color: #6c757d; margin: 1rem 0">
+            This will permanently delete all shortened URLs. This action cannot
+            be undone.
+          </p>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal()">
+              Cancel
+            </button>
+            <form action="/url/delete/all" method="POST">
+              <button class="btn btn-danger" type="submit">
+                Confirm Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <% if (locals.urls) { %>
+        <table class="url-table">
+          <thead>
+              <tr>
+                  <th>S. No.</th>
+                  <th>Short ID</th>
+                  <th>Redirect URL</th>
+                  <th>Clicks</th>
+                  <th>Action</th> <!-- Moved to last -->
+              </tr>
+          </thead>
+          <tbody>
+              <% urls.forEach((url, index) => { %>
+                  <tr>
+                      <td><%- index + 1 %></td>
+                      <td><%- url.shortId %></td>
+                      <td><%- url.redirectURL %></td>
+                      <td><%- url.visitHistory.length %></td>
+                      <td>
+                          <button 
+                              class="delete-btn"
+                              onclick="deleteSingleUrl('<%= url.shortId %>')"
+                          >
+                              <i class="fas fa-trash"></i>
+                          </button>
+                      </td>
+                  </tr>
+              <% }) %>
+          </tbody>
+      </table>
+    <% } %>
+</div>
+
+    <script>
+        async function deleteSingleUrl(shortId) {
+            if (!confirm('Are you sure you want to delete this URL?')) return;
+
+            try {
+                const response = await fetch(`/url/delete/${shortId}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Error deleting URL');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting URL');
+            }
+        }
+
+      function showDeleteAllModal() {
+        document.getElementById("deleteAllModal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("deleteAllModal").style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("deleteAllModal");
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+    </script>
+  </body>
 </html>
