@@ -304,10 +304,13 @@
       </header>
 
       <% if (locals.id) { %>
-      <div class="success-message">
-        URL Generated: <span id="gen-url">http://localhost:8001/url/<%= id %></span>
-      </div>
-      <% } %>
+        <div class="success-message">
+          URL Generated: 
+          <span id="gen-url">
+            <%= baseURL %>/url/<%= id %>
+          </span>
+        </div>
+      <% } %>      
 
       <div class="card">
         <form method="post" action="/url">
