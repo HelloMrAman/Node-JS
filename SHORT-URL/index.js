@@ -12,7 +12,7 @@ const userRoute = require("./routes/user");
 
 const app = express();
 const PORT = process.env.PORT || 8001;
-const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const baseURL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 8001}`;
 
 // MongoDB Connection
 connectToMongoDB(process.env.MONGODB_URI, {
