@@ -12,15 +12,20 @@ const userRoute = require("./routes/user");
 
 const app = express();
 const PORT = process.env.PORT || 8001;
-const baseURL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 8001}`;
+const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
-// MongoDB Connection
+// Connect to MongoDB
 connectToMongoDB(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log("MongoDB Connected!"));
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("MongoDB Connected!"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
 
-// EJS Setup
+// Set EJS as the templating engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -34,7 +39,7 @@ app.use("/url", restrictToLoggedInUserOnly, urlRoute);
 app.use("/user", userRoute);
 app.use("/", checkAuth, staticRoute);
 
-// Redirection Route
+// Redirect short URLs to original URLs and log visits
 app.get("/url/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
   try {
@@ -55,16 +60,22 @@ app.get("/url/:shortId", async (req, res) => {
   }
 });
 
-// Home Route (Render Page)
+// Home page - render with URLs and optional new short ID
 app.get("/", async (req, res) => {
-  const urls = await URL.find({});
-  res.render("home", {
-    urls: urls,
-    id: req.query.id || null,
-    baseURL // 💡 Pass baseURL to EJS
-  });
+  try {
+    const urls = await URL.find({});
+    res.render("home", {
+      urls,
+      id: req.query.id || null,
+      baseURL,
+    });
+  } catch (error) {
+    console.error("Error rendering home:", error);
+    res.status(500).send("Server error");
+  }
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on:-> ${baseURL}`);
+  console.log(`Server running at: ${baseURL}`);
 });

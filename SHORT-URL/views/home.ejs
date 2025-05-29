@@ -117,6 +117,36 @@
         color: black;
       }
 
+      #copyButton {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px; /* space between icon and text */
+        padding: 6px 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: black;
+        margin-left: 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        user-select: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+
+      #copyButton:hover {
+        background-color: #0056b3;
+        color: white;
+      }
+
+      #copyButton:active {
+        background-color: #004085;
+      }
+
+      #copyButton i {
+        font-size: 18px;
+      }
+
       .url-table {
           width: 100%;
           background: white;
@@ -303,15 +333,29 @@
         <h1 class="title">URL Shortener</h1>
       </header>
 
-      <% if (locals.id) { %>
-        <div class="success-message">
-          URL Generated: 
-          <span id="gen-url">
-            <%= baseURL %>/url/<%= id %>
-          </span>
+      <% if (id) { %>
+        <div class="success-message" style="position: relative; display: block;">
+          Shortened URL: 
+          <span id="gen-url"><%= baseURL %>/url/<%= id %></span>
+          <button id="copyButton" title="Copy to clipboard">
+            <i class="fa-regular fa-copy"></i>
+          </button>  
+          <span id="copyMessage" style="
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: #4caf50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+          ">Copied!</span>        
         </div>
-      <% } %>      
-
+      <% } %>         
+          
       <div class="card">
         <form method="post" action="/url">
           <div class="form-group">
@@ -476,24 +520,42 @@
 </div>
 
     <script>
-        async function deleteSingleUrl(shortId) {
-            if (!confirm('Are you sure you want to delete this URL?')) return;
+      document.addEventListener('DOMContentLoaded', () => {
+        const copyBtn = document.getElementById('copyButton');
+        const copyMsg = document.getElementById('copyMessage');
+        if (!copyBtn || !copyMsg) return;
 
-            try {
-                const response = await fetch(`/url/delete/${shortId}`, {
-                    method: 'DELETE',
-                });
+        copyBtn.addEventListener('click', () => {
+          const urlText = document.getElementById('gen-url').innerText;
+          navigator.clipboard.writeText(urlText)
+            .then(() => {
+              copyMsg.style.opacity = '1';
+              setTimeout(() => {
+                copyMsg.style.opacity = '0';
+              }, 2000);
+            })
+            .catch(err => console.error('Failed to copy:', err));
+        });
+      });
 
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Error deleting URL');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error deleting URL');
-            }
-        }
+      async function deleteSingleUrl(shortId) {
+          if (!confirm('Are you sure you want to delete this URL?')) return;
+
+          try {
+              const response = await fetch(`/url/delete/${shortId}`, {
+                  method: 'DELETE',
+              });
+
+              if (response.ok) {
+                  window.location.reload();
+              } else {
+                  alert('Error deleting URL');
+              }
+          } catch (error) {
+              console.error('Error:', error);
+              alert('Error deleting URL');
+          }
+      }
 
       function showDeleteAllModal() {
         document.getElementById("deleteAllModal").style.display = "flex";
